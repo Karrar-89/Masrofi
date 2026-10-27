@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#116466">
+<title>مصروفي — متابعة المصاريف</title>
+<style>
+:root{--teal:#116466;--teal2:#d9eeee;--bg:#f4f7f7;--card:#fff;--text:#172b2b;--muted:#637575;--red:#bd3e43;--green:#18815c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,#116466,#1b8580);color:#fff;padding:24px 18px 30px;border-radius:0 0 25px 25px}
+.wrap{max-width:680px;margin:auto;padding:0 14px 30px}header .wrap{padding-bottom:0}
+h1{font-size:25px;margin:0 0 5px}header p{margin:0;color:#e0f4f3;font-size:14px}
+.balance-card{background:#fff;color:var(--text);margin-top:20px;border-radius:18px;padding:18px;box-shadow:0 7px 24px #12333314}
+.small{color:var(--muted);font-size:13px}.balance{font-size:32px;font-weight:800;margin:6px 0 14px;letter-spacing:.2px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#f3f8f8;border-radius:12px;padding:11px}.stat strong{display:block;font-size:17px;margin-top:4px}
+main{padding-top:17px}.card{background:var(--card);border-radius:17px;padding:17px;margin-bottom:14px;box-shadow:0 3px 14px #1633330a}
+h2{font-size:18px;margin:0 0 13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}.field label{font-size:13px;color:var(--muted)}
+input,select{font:inherit;width:100%;padding:12px;border:1px solid #d7e1e1;border-radius:11px;background:#fff;color:var(--text);outline-color:var(--teal)}
+button{font:inherit;border:0;border-radius:12px;padding:12px 14px;cursor:pointer;font-weight:700}
+.primary{background:var(--teal);color:#fff;width:100%}.secondary{background:var(--teal2);color:var(--teal)}.danger{background:#fff0f0;color:var(--red);padding:7px 10px;font-size:12px}
+.salary-row{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end}.salary-row .field{margin:0}
+.note{font-size:12px;color:var(--muted);line-height:1.7;margin:10px 0 0}
+.tx{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #edf1f1}.tx:last-child{border-bottom:0}.dot{width:40px;height:40px;border-radius:13px;background:#f0f6f6;display:grid;place-items:center;font-size:19px;flex-shrink:0}.tx-info{flex:1;min-width:0}.tx-title{font-weight:700;overflow-wrap:anywhere}.tx-sub{font-size:12px;color:var(--muted);margin-top:3px}.amount{font-weight:800;white-space:nowrap}.expense{color:var(--red)}.income{color:var(--green)}.empty{text-align:center;padding:18px;color:var(--muted);font-size:14px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:5px 0 18px}
+@media(max-width:390px){.grid{grid-template-columns:1fr}.balance{font-size:28px}.salary-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>مصروفي 💰</h1><p>راتبك ومصاريفك، كلها بمكان واحد</p>
+<div class="balance-card">
+<div class="small">الرصيد المتبقي حالياً</div><div class="balance" id="balance">0 د.ع</div>
+<div class="stats">
+<div class="stat"><span class="small">دخل هذا الشهر</span><strong class="income" id="monthIncome">0 د.ع</strong></div>
+<div class="stat"><span class="small">مصروف هذا الشهر</span><strong class="expense" id="monthExpense">0 د.ع</strong></div>
+</div>
+</div>
+</div></header>
+<main class="wrap">
+<section class="card">
+<h2>⚙️ إعداد الراتب</h2>
+<div class="salary-row">
+<div class="field"><label for="salary">راتبك الشهري (دينار عراقي)</label><input id="salary" type="number" min="0" step="25000" placeholder="مثلاً 1600000" inputmode="numeric"></div>
+<button class="secondary" id="saveSalary">حفظ الراتب</button>
+</div>
+<div class="actions" style="margin-top:12px"><button class="primary" id="addSalary">＋ تسجيل راتب هذا الشهر</button></div>
+<p class="note">اضغط «تسجيل راتب هذا الشهر» عند استلام الراتب. يمنع التطبيق تسجيل الراتب مرتين للشهر نفسه. الراتب محفوظ كدخل، وتُخصم المصاريف من الرصيد تلقائياً.</p>
+</section>
+<section class="card">
+<h2>💵 إضافة دخل إضافي</h2>
+<div class="grid">
+<div class="field"><label for="extraIncomeAmount">مبلغ الدخل (د.ع)</label><input id="extraIncomeAmount" type="number" min="1" step="250" placeholder="مثلاً 50000" inputmode="numeric"></div>
+<div class="field"><label for="incomeCategory">نوع الدخل</label><select id="incomeCategory"><option>مكافأة</option><option>عمل إضافي</option><option>مبلغ مسترجع</option><option>هدية</option><option>دخل آخر</option></select></div>
+</div>
+<div class="field"><label for="incomeDescription">تفاصيل (اختياري)</label><input id="incomeDescription" type="text" maxlength="90" placeholder="مثلاً: مكافأة من العمل"></div>
+<button class="primary" id="addExtraIncome">إضافة الدخل إلى الرصيد</button>
+<p class="note">أي دخل إضافي تسجله هنا يُضاف مباشرة إلى رصيدك، ويظهر في سجل الحركات وإجمالي دخل الشهر.</p>
+</section>
+<section class="card">
+<h2>＋ تسجيل مصروف</h2>
+<div class="grid">
+<div class="field"><label for="expenseAmount">المبلغ (د.ع)</label><input id="expenseAmount" type="number" min="1" step="250" placeholder="مثلاً 10000" inputmode="numeric"></div>
+<div class="field"><label for="category">نوع المصروف</label><select id="category"><option>طعام ومشروبات</option><option>وقود ونقل</option><option>البيت وفواتير</option><option>أطفال ومدرسة</option><option>صحة ودواء</option><option>تسوق</option><option>ديون وأقساط</option><option>أخرى</option></select></div>
+</div>
+<div class="field"><label for="description">تفاصيل (اختياري)</label><input id="description" type="text" maxlength="90" placeholder="مثلاً: مشتريات البيت"></div>
+<button class="primary" id="addExpense">تسجيل المصروف وخصمه من الرصيد</button>
+<p class="note" id="expenseNote">يمكنك تسجيل المصروف حتى لو تجاوز الرصيد؛ سيظهر الرصيد بالسالب.</p>
+</section>
+<section class="card">
+<h2>📋 سجل الحركات</h2>
+<div class="field"><label for="filterMonth">عرض حركات الشهر</label><input id="filterMonth" type="month"></div>
+<div id="transactions"></div>
+<div class="actions" style="margin-top:12px">
+<button class="secondary" id="exportBtn">تصدير نسخة احتياطية</button>
+<button class="secondary" id="importBtn">استرجاع نسخة</button>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+</div>
+<p class="note">بياناتك محفوظة على هذا الجهاز والمتصفح. استخدم النسخة الاحتياطية إذا غيّرت الجهاز أو المتصفح.</p>
+</section>
+<footer>مصروفي • متابعة شخصية للمصاريف بالدينار العراقي</footer>
+</main>
+<script>
+const KEY='masroofi_data_v1';
+const $=id=>document.getElementById(id);
+const nowMonth=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+let data={salary:0,transactions:[]};
+try{const raw=localStorage.getItem(KEY);if(raw){const parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.transactions))data=parsed;}}catch(e){}
+const money=n=>Math.round(Number(n)||0).toLocaleString('en-US')+' د.ع';
+const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+const monthOf=date=>String(date).slice(0,7);
+const balance=()=>data.transactions.reduce((s,t)=>s+(t.type==='income'?t.amount:-t.amount),0);
+const sum=(type,month)=>data.transactions.filter(t=>t.type===type&&monthOf(t.date)===month).reduce((s,t)=>s+t.amount,0);
+const dateNow=()=>new Date().toISOString().slice(0,10);
+function render(){
+ $('salary').value=data.salary||'';
+ if(!$('filterMonth').value)$('filterMonth').value=nowMonth();
+ const m=$('filterMonth').value||nowMonth();
+ $('balance').textContent=money(balance());
+ $('monthIncome').textContent=money(sum('income',nowMonth()));
+ $('monthExpense').textContent=money(sum('expense',nowMonth()));
+ const list=data.transactions.filter(t=>monthOf(t.date)===m).slice().sort((a,b)=>(b.created||0)-(a.created||0));
+ const root=$('transactions');
+ if(!list.length){root.innerHTML='<div class="empty">ماكو حركات مسجلة لهذا الشهر بعد.</div>';return}
+ root.innerHTML='';
+ for(const t of list){
+  const row=document.createElement('div');row.className='tx';
+  const dot=document.createElement('div');dot.className='dot';dot.textContent=t.type==='income'?'💵':'🧾';
+  const info=document.createElement('div');info.className='tx-info';
+  const title=document.createElement('div');title.className='tx-title';title.textContent=t.title|| (t.type==='income'?'راتب':'مصروف');
+  const sub=document.createElement('div');sub.className='tx-sub';sub.textContent=t.date+(t.note?' • '+t.note:'');
+  info.append(title,sub);
+  const right=document.createElement('div');right.style.textAlign='left';
+  const amt=document.createElement('div');amt.className='amount '+(t.type==='income'?'income':'expense');amt.textContent=(t.type==='income'?'+':'−')+money(t.amount);
+  const del=document.createElement('button');del.className='danger';del.textContent='حذف';del.style.marginTop='5px';del.onclick=()=>{if(confirm('تحذف هذه الحركة؟')){data.transactions=data.transactions.filter(x=>x.id!==t.id);save();render()}};
+  right.append(amt,del);row.append(dot,info,right);root.append(row);
+ }
+}
+$('saveSalary').onclick=()=>{const v=Number($('salary').value);if(!Number.isFinite(v)||v<0){alert('أدخل مبلغ راتب صحيح.');return}data.salary=Math.round(v);save();render();alert('تم حفظ الراتب الشهري.');};
+$('addSalary').onclick=()=>{
+ const v=Math.round(Number(data.salary)||0);if(v<=0){alert('أدخل راتبك الشهري واحفظه أولاً.');return}
+ const m=nowMonth();if(data.transactions.some(t=>t.type==='income'&&t.title==='راتب شهري'&&monthOf(t.date)===m)){alert('راتب هذا الشهر مسجل مسبقاً.');return}
+ data.transactions.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),type:'income',amount:v,date:dateNow(),title:'راتب شهري',note:'',created:Date.now()});save();render();alert('تم تسجيل الراتب وإضافته إلى الرصيد.');
+};
+$('addExtraIncome').onclick=()=>{
+ const v=Math.round(Number($('extraIncomeAmount').value));if(!Number.isFinite(v)||v<=0){alert('أدخل مبلغ دخل صحيحاً.');return}
+ const cat=$('incomeCategory').value;const note=$('incomeDescription').value.trim();
+ data.transactions.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),type:'income',amount:v,date:dateNow(),title:cat,note,created:Date.now()});
+ save();$('extraIncomeAmount').value='';$('incomeDescription').value='';$('filterMonth').value=nowMonth();render();
+ alert('تمت إضافة الدخل إلى رصيدك.');
+};
+$('addExpense').onclick=()=>{
+ const v=Math.round(Number($('expenseAmount').value));if(!Number.isFinite(v)||v<=0){alert('أدخل مبلغ مصروف صحيحاً.');return}
+ const cat=$('category').value;const note=$('description').value.trim();
+ data.transactions.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),type:'expense',amount:v,date:dateNow(),title:cat,note,created:Date.now()});
+ save();$('expenseAmount').value='';$('description').value='';$('filterMonth').value=nowMonth();render();
+};
+$('filterMonth').onchange=render;
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='masroofi-backup-'+nowMonth()+'.json';a.click();URL.revokeObjectURL(url)};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!x||!Array.isArray(x.transactions))throw Error();if(confirm('سيتم استبدال البيانات الحالية بالنسخة المختارة. هل تريد المتابعة؟')){data={salary:Number(x.salary)||0,transactions:x.transactions};save();render();alert('تم استرجاع النسخة.')}}catch(err){alert('الملف غير صالح أو لا يحتوي على نسخة مصروفي.')}e.target.value=''};
+render();
+</script>
+</body>
+</html>
